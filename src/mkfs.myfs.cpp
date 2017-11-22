@@ -13,6 +13,8 @@
 #include <iostream>
 using namespace std;
 
+
+
 // Wird als Struktur gebaut, da Inodes mehrfach vorhanden sind.
 struct Inode {
 	string filename; // Dateiname
@@ -30,6 +32,12 @@ struct Inode {
 unsigned long sizeOfFileSystem;
 unsigned long sizeofInodeList;
 
+// FAT
+// TODO Inode verweist auf FAT, FAT verweist auf Datei, FAT ist eine einfach verkette Liste von Pointern
+
+
+// Root-Verzeichnis
+unsigned char* inodeID; // ID's der Inodes
 
 
 
