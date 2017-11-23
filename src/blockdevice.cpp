@@ -4,6 +4,7 @@
 //
 //  Created by Oliver Waldhorst on 09.10.17.
 //  Copyright © 2017 Oliver Waldhorst. All rights reserved.
+//  Beschreibt die Blücke des File-Systems
 //
 
 #include <cstdlib>
