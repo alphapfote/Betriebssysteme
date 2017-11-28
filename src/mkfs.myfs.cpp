@@ -25,7 +25,7 @@ struct Inode {
 	unsigned long atime; // Acces Time (letzter Zugriff)
 	unsigned long mtime; // Modification Time (letzte Änderung)
 	unsigned long ctime; // Status Change Time (letzte Statusänderung)
-	unsigned int* pointerFirstDatablock; // Zeiger	auf	ersten	Datenblock
+	unsigned int* pointerFAT; // Zeiger	auf	ersten Eintrag in der FAT für die Datei
 };
 
 // Superblock
@@ -34,6 +34,8 @@ unsigned long sizeofInodeList;
 
 // FAT
 // TODO Inode verweist auf FAT, FAT verweist auf Datei, FAT ist eine einfach verkette Liste von Pointern
+list <unsigned int*> pointerToFileInDirectory;
+
 
 
 // Root-Verzeichnis
