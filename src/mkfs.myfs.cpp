@@ -22,7 +22,11 @@ using namespace std;
 #define NUM_INODES 64 				// Anzahl Inodes
 #define NUM_MAX_FILES NUM_INODES 	// Maximale Anzahl Dateien
 #define AMOUNT_BLOCKS 500			// Anzahl der Blöcke
+#define FIRST_DATABLOCK	71			// Erster Block mit Dateiinhalt
+#define FIRST_INODEBLOCK 5			// Erster Block mit Inodeinhalt
 char buffer[BLOCK_SIZE];
+
+unsigned long blocksOccupied;
 
 // Wird als Struktur gebaut, da Inodes mehrfach vorhanden sind.
 struct Inode {
@@ -45,7 +49,9 @@ unsigned long sizeOfFileSystem = AMOUNT_BLOCKS * BLOCK_SIZE;
 // FAT
 // die FAT ist ein eindimensionales Array, der zu den Datei-Blöcken die Verlinkungen anzeigt.
 // Durch den Iterator ist immer klar, wo man ist
+// Die FAT ist 4 Blöcke groß
 unsigned int FAT[AMOUNT_BLOCKS]; //Größe: Anzahl der Blöcke
+
 
 // Root-Verzeichnis
 unsigned short inodeID[64]; // ID's der Inodes
@@ -78,34 +84,43 @@ void writeInodeData(char* file, struct stat metadata, unsigned int firstBlock) {
 	inodeName.ctime = metadata.st_ctime;
 	inodeName.firstBlock = firstBlock;
 
-	inodeList[sizeof(inodeList)] = inodeName;
+//	write_device(&bd, ???, inodeName)
+//	inodeList[sizeof(inodeList)] = inodeName;
 }
 
-template<typename T> void read_device(BlockDevice* device, u_int32_t block, T* data) {
+// Funktion zum Lesen vom Blockdevice, nimmt normale Datentypen und Structs entgegen
+template<typename T> void read_device(BlockDevice* device, u_int32_t block,
+		T* data) {
 	static char buffer[BLOCK_SIZE];
 	device->read(block, buffer);
 	*data = *reinterpret_cast<T*>(buffer);
 }
 
-template<std::size_t N, typename T> void read_device(BlockDevice* device, u_int32_t block, T (&data)[N]) {
+// Funktion zum Lesen vom  Blockdevice, nimmt Arrays entgegen
+template<std::size_t N, typename T> void read_device(BlockDevice* device,
+		u_int32_t block, T (&data)[N]) {
 	static char buffer[BLOCK_SIZE];
 	device->read(block, buffer);
 	memcpy(&data, buffer, sizeof(T[N])); //geht als schleife durch den array
 }
 
 // data (T) muss ein Array oder Struct sein, kein Pointer
-template<typename T> void write_device(BlockDevice* device, u_int32_t block, const T* data) {
+// Funktion zum Schreiben auf das Blockdevice, nimmt normale Datentypen und Structs entgegen
+template<typename T> void write_device(BlockDevice* device, u_int32_t block,
+		const T* data) {
 	static_assert(sizeof(T) <= BLOCK_SIZE, "T must not be bigger than the block size");
 
 	static char buffer[BLOCK_SIZE];
 
-	memset(buffer, 0, BLOCK_SIZE);
-	memcpy(buffer, data, sizeof(T));
+	memset(buffer, 0, BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist.
+	memcpy(buffer, data, sizeof(T)); // So viel Byte wie nötig werden mit dem Inhalt von Data überschrieben, der Rest bleibt 0
 
 	device->write(block, buffer);
 }
 
-template<std::size_t N, typename T> void write_device(BlockDevice* device, u_int32_t block, const T(&data)[N]) {
+// Funktion zum Schreiben auf das Blockdevice, nimmt Arrays entgegen
+template<std::size_t N, typename T> void write_device(BlockDevice* device,
+		u_int32_t block, const T (&data)[N]) {
 	static_assert(sizeof(T[N]) <= BLOCK_SIZE, "T must not be bigger than the block size");
 
 	static char buffer[BLOCK_SIZE];
@@ -124,27 +139,22 @@ void readInputFile(BlockDevice* device, char* file) {
 	// Füllen der Struktur mit den durch stat ausgelesenen Daten
 	stat(file, &metadata);
 
-	// Erstellung der Inode für die Datei
+	// Erstellung der Inode für die Datei TODO: First Block (99) ändern
 	writeInodeData(file, metadata, 99);
 
-	int blockAmount = metadata.st_size / 512; //anzahl der benötigten blöcke
+	blocksOccupied += metadata.st_size / 512; //Anzahl der benötigten Blöcke wird hochgezählt.
 
 	static char buffer[BLOCK_SIZE];
-
-	ifstream input(file);
-	for (u_int32_t block = 100; input; ++block) {
+	ifstream input(file); // Input File Stream
+	for (u_int32_t block = (FIRST_DATABLOCK + blocksOccupied); input; ++block) { //Wir schreiben ab Block 100, davor Inodes, Superblock, FAT und Root-Verzeichnis
 		memset(buffer, 0, sizeof(buffer));
 		input.read(buffer, sizeof(buffer));
 		write_device(device, block, &buffer[0]);
-	}
 
-//	while (file >= BLOCK_SIZE) {
-//		//schneide 512 byte ab
-//		//erstelle adresse zum blcok, indem dieser teil abgelegt wird
-//		//beim 1. durchlauf: adresse wird in inode gespeichert
-//		//beim 1 - (x-1). durchlauf: adresse wird in der fat gespeichert
-//		//beim x. durchlauf: eintrag NULL in der fat, zeichen dafür, dass das der letzte block ist
-//	}
+		// TODO: FAT dynamisch erstellen (Aufgabe 2)
+		// Frage: Man muss für die FAT immer 4 Blöcke auslesen, die 4 Arrays zusammenfügen und damit arbeiten. Anschließend wieder umgekehrt das selbe machen, geht das einfacher?
+		FAT[block] = block + 1;
+	}
 }
 
 // argv = argument value
@@ -160,26 +170,42 @@ int main(int argc, char *argv[]) {
 
 	// Superblock
 	write_device(&bd, 0, &sizeOfFileSystem);
-	Inode inode { "foobar", 0, 1000, 1000, 0777, 0, 0, 0, 0 }, inode2;
-	write_device(&bd, 1, &inode); // Beispiele / Tests
-	read_device(&bd, 1, &inode2);
 
-	// Root-Verzeichnis
-	for (int i = 0; i < 64; ++i) {
+	// FAT
+//	for (int i = 0; i < AMOUNT_BLOCKS; ++i){
+//		FAT[i] = 0;
+//	}
+	//wird initialisiert, alle blöcke werden belegt &auf 0 gesetzt
+	static char buffer[BLOCK_SIZE];
+	memset(buffer, 0, BLOCK_SIZE);
+	write_device(&bd, 1, buffer);
+	write_device(&bd, 2, buffer);
+	write_device(&bd, 3, buffer);
+	write_device(&bd, 4, buffer);
+
+
+//	TEST
+//	Inode inode { "foobar", 0, 1000, 1000, 0777, 0, 0, 0, 0 }, inode2;
+//	write_device(&bd, 1, &inode); // Beispiele / Tests
+//	read_device(&bd, 1, &inode2);
+
+	// Root-Verzeichnis (eigentlich unnötig)
+	for (unsigned short i = 0; i < 64; ++i) {
 		inodeID[i] = i + 1;
 	}
-	unsigned short inodeID2[64];
-	write_device(&bd, 67, inodeID);
-	read_device<64>(&bd, 67, inodeID2);
-	for (int i = 0; i < 64; ++i) {
-		cout << inodeID2[i] << endl;
-	}
-
+	write_device(&bd, 70, inodeID);
+//	TEST
+//	unsigned short inodeID2[64];
+//	write_device(&bd, 67, inodeID);
+//	read_device<64>(&bd, 67, inodeID2);
+//	for (int i = 0; i < 64; ++i) {
+//		cout << inodeID2[i] << endl;
+//	}
 
 	// Jede Datei wird ausgelesen und auf das FS geschrieben
 	for (int i = 2; i < argc; i++) {
-
-		writeFileInContainer(argv[2], containerPath);
+		readInputFile(&bd, argv[i]);
 	}
+
 	return 0;
 }
