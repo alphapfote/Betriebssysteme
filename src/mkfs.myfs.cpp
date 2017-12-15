@@ -120,7 +120,7 @@ void writeInodeData(BlockDevice* bd, char* file, struct stat metadata) {
 	inodeName.ctime = metadata.st_ctime;
 	inodeName.firstBlock = FIRST_DATABLOCK + blocksOccupied;
 
-	write_device(bd, FIRST_INODEBLOCK + filesWritten, inodeName);
+	write_device(bd, FIRST_INODEBLOCK + filesWritten, &inodeName);
 //	inodeList[sizeof(inodeList)] = inodeName;
 }
 
@@ -129,7 +129,7 @@ void readAndWriteFile(BlockDevice* device, char* file) {
     Inode readInode;
 
     for (int i = 0; i < filesWritten; ++i) {
-        read_device(device, FIRST_INODEBLOCK + i, readInode);
+        read_device(device, FIRST_INODEBLOCK + i, &readInode);
         if(readInode.filename == file){
             cerr << "EEXIST: Dateiname existiert bereits";
         }
@@ -143,7 +143,7 @@ void readAndWriteFile(BlockDevice* device, char* file) {
 
 	// Erstellung der Inode für die Datei
     // Die Klammer steht für den ersten freien Block
-	writeInodeData(file, metadata);
+	writeInodeData(device, file, metadata);
 
 	blocksOccupied += metadata.st_size / 512; //Anzahl der benötigten Blöcke wird hochgezählt.
 
