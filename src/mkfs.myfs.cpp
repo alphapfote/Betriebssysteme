@@ -57,27 +57,6 @@ unsigned int FAT[AMOUNT_BLOCKS]; //Größe: Anzahl der Blöcke
 // Root-Verzeichnis
 unsigned short inodeID[64]; // ID's der Inodes
 
-/**
- * Die Methode füllt die Inodes für das Schreiben einer Datei
- * @param metadata, die Metadaten die für das Schreiben der Inode gebraucht werden
- * @param file, Name der Datei
- */
-void writeInodeData(char* file, struct stat metadata) {
-
-	struct Inode inodeName;
-	inodeName.filename = basename(file);
-	inodeName.filesize = metadata.st_size;
-	inodeName.uid_t = metadata.st_uid;
-	inodeName.gid_t = metadata.st_gid;
-	inodeName.mode_t = S_IFREG | 0444; // In der Aufgabenstellung gegeben
-	inodeName.atime = metadata.st_atime;
-	inodeName.mtime = metadata.st_mtime;
-	inodeName.ctime = metadata.st_ctime;
-	inodeName.firstBlock = FIRST_DATABLOCK + blocksOccupied;
-
-	write_device(&bd, FIRST_INODEBLOCK + filesWritten, inodeName);
-//	inodeList[sizeof(inodeList)] = inodeName;
-}
 
 // Funktion zum Lesen vom Blockdevice, nimmt normale Datentypen und Structs entgegen
 template<typename T> void read_device(BlockDevice* device, u_int32_t block,
@@ -122,12 +101,35 @@ template<std::size_t N, typename T> void write_device(BlockDevice* device,
 	device->write(block, buffer);
 }
 
+
+/**
+ * Die Methode füllt die Inodes für das Schreiben einer Datei
+ * @param metadata, die Metadaten die für das Schreiben der Inode gebraucht werden
+ * @param file, Name der Datei
+ */
+void writeInodeData(BlockDevice* bd, char* file, struct stat metadata) {
+
+	struct Inode inodeName;
+	inodeName.filename = basename(file);
+	inodeName.filesize = metadata.st_size;
+	inodeName.uid_t = metadata.st_uid;
+	inodeName.gid_t = metadata.st_gid;
+	inodeName.mode_t = S_IFREG | 0444; // In der Aufgabenstellung gegeben
+	inodeName.atime = metadata.st_atime;
+	inodeName.mtime = metadata.st_mtime;
+	inodeName.ctime = metadata.st_ctime;
+	inodeName.firstBlock = FIRST_DATABLOCK + blocksOccupied;
+
+	write_device(bd, FIRST_INODEBLOCK + filesWritten, inodeName);
+//	inodeList[sizeof(inodeList)] = inodeName;
+}
+
 // Liest den Inhalt einer Datei aus, zerlegt die Datei in Blöcke, die im FS gespeichert werden können.
 void readAndWriteFile(BlockDevice* device, char* file) {
     Inode readInode;
 
     for (int i = 0; i < filesWritten; ++i) {
-        read_device(&bd, FIRST_INODEBLOCK + i, readInode);
+        read_device(device, FIRST_INODEBLOCK + i, readInode);
         if(readInode.filename == file){
             cerr << "EEXIST: Dateiname existiert bereits";
         }
