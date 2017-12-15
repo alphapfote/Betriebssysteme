@@ -5,9 +5,9 @@
 #ifndef BETRIEBSSYSTEME_MKFS_MYFS_H
 #define BETRIEBSSYSTEME_MKFS_MYFS_H
 
-
-
-// Funktion zum Lesen vom Blockdevice, nimmt normale Datentypen und Structs entgegen
+#include <string>
+#include <cstring>
+// vom Blockdevice, nimmt normale Datentypen und Structs entgegen
 template<typename T> void read_device(BlockDevice* device, u_int32_t block,
                                       T* data) {
     static char buffer[BLOCK_SIZE];
@@ -52,11 +52,5 @@ template<std::size_t N, typename T> void write_device(BlockDevice* device,
 
 void writeInodeData(BlockDevice* bd, char* file, struct stat metadata);
 void readAndWriteFile(BlockDevice* device, char* file);
-
-
-
-
-
-
 
 #endif //BETRIEBSSYSTEME_MKFS_MYFS_H
