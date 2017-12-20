@@ -5,8 +5,28 @@
 #ifndef BETRIEBSSYSTEME_MKFS_MYFS_H
 #define BETRIEBSSYSTEME_MKFS_MYFS_H
 
+#define NAME_LENGTH 255 			// Maximale Länge eines Dateinamens in Zeichen
+#define BLOCK_SIZE 512 				// Logische Blockgröße
+#define NUM_INODES 64 				// Anzahl Inodes
+#define NUM_MAX_FILES NUM_INODES 	// Maximale Anzahl Dateien
+#define AMOUNT_BLOCKS 64000			// Anzahl der Blöcke
+#define FIRST_DATABLOCK	568			// Erster Block mit Dateiinhalt
+#define FIRST_INODEBLOCK 502		// Erster Block mit Inodeinhalt
+char buffer[BLOCK_SIZE];
+
+
+
+#include "myfs.h"
+#include "blockdevice.h"
+#include "macros.h"
+#include "mkfs.myfs.h"
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <sys/stat.h>
 #include <cstring>
+using namespace std;
+
 // vom Blockdevice, nimmt normale Datentypen und Structs entgegen
 template<typename T> void read_device(BlockDevice* device, u_int32_t block,
                                       T* data) {
@@ -25,8 +45,7 @@ template<std::size_t N, typename T> void read_device(BlockDevice* device,
 
 // data (T) muss ein Array oder Struct sein, kein Pointer
 // Funktion zum Schreiben auf das Blockdevice, nimmt normale Datentypen und Structs entgegen
-template<typename T> void write_device(BlockDevice* device, u_int32_t block,
-                                       const T* data) {
+template<typename T> void write_device(BlockDevice* device, u_int32_t block, const T* data) {
     static_assert(sizeof(T) <= BLOCK_SIZE, "T must not be bigger than the block size");
 
     static char buffer[BLOCK_SIZE];

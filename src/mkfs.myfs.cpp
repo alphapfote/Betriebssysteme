@@ -12,7 +12,7 @@
 #include "macros.h"
 #include "mkfs.myfs.h"
 #include <string>
-#include <iostream>
+#include <iostream>62465
 #include <fstream>
 #include <sys/stat.h>
 #include <cstring>
@@ -25,7 +25,7 @@ using namespace std;
 #define AMOUNT_BLOCKS 64000			// Anzahl der Blöcke
 #define FIRST_DATABLOCK	568			// Erster Block mit Dateiinhalt
 #define FIRST_INODEBLOCK 502		// Erster Block mit Inodeinhalt
-char buffer[BLOCK_SIZE];
+//char buffer[BLOCK_SIZE];
 
 unsigned long blocksOccupied = 0;
 unsigned short filesWritten = 0;
@@ -111,6 +111,7 @@ void readAndWriteFile(BlockDevice* device, char* file) {
 	for (u_int32_t block = (FIRST_DATABLOCK + blocksOccupied); input; ++block) { //Wir schreiben ab Block 100, davor Inodes, Superblock, FAT und Root-Verzeichnis
 		memset(buffer, 0, sizeof(buffer));
 		input.read(buffer, sizeof(buffer));
+		// TEST cout << buffer << endl;
 		write_device(device, block, &buffer[0]);
 
 		// TODO: FAT dynamisch erstellen (Aufgabe 2)
@@ -118,6 +119,18 @@ void readAndWriteFile(BlockDevice* device, char* file) {
 	}
     ++filesWritten;
 }
+
+template<typename T> void write_device(BlockDevice* device, u_int32_t block, const T* data) {
+    static_assert(sizeof(T) <= BLOCK_SIZE, "T must not be bigger than the block size");
+
+    static char buffer[BLOCK_SIZE];
+
+    memset(buffer, 0, BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist.
+    memcpy(buffer, data, sizeof(T)); // So viel Byte wie nötig werden mit dem Inhalt von Data überschrieben, der Rest bleibt 0
+
+    device->write(block, buffer);
+}
+
 
 // argv = argument value
 // generische form, mit der ein c++ programm aufgerufen wird
