@@ -9,6 +9,7 @@
 #ifndef myfs_h
 #define myfs_h
 
+// beinhaltet funktionen, um ein file-system mounten zu können
 #include <fuse.h>
 
 #include "blockdevice.h"

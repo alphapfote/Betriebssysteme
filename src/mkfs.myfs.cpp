@@ -19,8 +19,8 @@
 using namespace std;
 
 #define NAME_LENGTH 255 			// Maximale Länge eines Dateinamens in Zeichen
-#define BLOCK_SIZE 512 				// Logische Blockgröße
-#define NUM_INODES 64 				// Anzahl Inodes
+#define BLOCK_SIZE 512 				// Logische Blockgröße (Bytes)
+#define NUM_INODES 64 				// Anzahl Inodes (Bytes)
 #define NUM_MAX_FILES NUM_INODES 	// Maximale Anzahl Dateien
 #define AMOUNT_BLOCKS 64000			// Anzahl der Blöcke
 #define FIRST_DATABLOCK	568			// Erster Block mit Dateiinhalt
