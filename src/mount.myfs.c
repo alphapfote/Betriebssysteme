@@ -13,11 +13,13 @@
 
 #include "myfs-info.h"
 
+//"fuse", ein framework das uns die kernelprogrammierung abnimmt, wird eingebunden
 struct fuse_operations myfs_oper;
 
 int main(int argc, char *argv[]) {
     int fuse_stat;
     
+    //den funktionen von fuse werden funktionen aus unserem wrapper zugeteilt
     myfs_oper.getattr = wrap_getattr; //metadaten der datei lesen
     myfs_oper.readlink = wrap_readlink;
     myfs_oper.getdir = NULL;
