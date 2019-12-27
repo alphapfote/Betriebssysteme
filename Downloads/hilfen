@@ -2,15 +2,25 @@ Befehl:
 make 
 ausführen, um zu kompilieren
 anschließend 
+
+//ausführendeDatei    containerfile     logfile      mountpoint
+    ./mount.myfs       mkfs.myfs      logtest.txt     mount-dir
 Befehl:
-mount mount.myfs mount_point -l logdatei
-mount ...
+./mount.myfs mkfs.myfs logtest.txt mount-dir
 ausführen, um das neuerstellte filesystem einzubinden
+
+mit Befehl:
+mount
+schauen, was für filesystems auf dem rechner gerade eingebunden sind
+mit Befehl 
+umount <name> 
+umount mount-dir
+betreffendes filesystem wieder ausbinden
+
 
 
 //Unless otherwise specified, all functions return an integer 0 or a positive number for success, 
 //or a negative value selected from errno.h if there is an error.
-
 /*
  * reads metadata of a file or directory and fills statbuf
 // * struct stat {

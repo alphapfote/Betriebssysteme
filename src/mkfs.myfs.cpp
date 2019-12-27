@@ -69,7 +69,7 @@ unsigned short inodeID[64]; // ID's der Inodes
 void writeInodeData(BlockDevice* bd, char* file, struct stat metadata) {
 
 	struct Inode inodeName;
-	inodeName.filename = basename(file);
+	inodeName.filename = file; //basename(file) hier schmeisst make einen error: use of undeclared identifier 'basename'
 	inodeName.filesize = metadata.st_size;
 	inodeName.uid_t = metadata.st_uid;
 	inodeName.gid_t = metadata.st_gid;
@@ -120,16 +120,6 @@ void readAndWriteFile(BlockDevice* device, char* file) {
     ++filesWritten;
 }
 
-template<typename T> void write_device(BlockDevice* device, u_int32_t block, const T* data) {
-    static_assert(sizeof(T) <= BLOCK_SIZE, "T must not be bigger than the block size");
-
-    static char buffer[BLOCK_SIZE];
-
-    memset(buffer, 0, BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist.
-    memcpy(buffer, data, sizeof(T)); // So viel Byte wie nötig werden mit dem Inhalt von Data überschrieben, der Rest bleibt 0
-
-    device->write(block, buffer);
-}
 
 
 // argv = argument value

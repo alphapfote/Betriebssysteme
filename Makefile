@@ -20,7 +20,7 @@ LINKFLAGS = -g -Wall
 # libraries
 LIBS = `pkg-config fuse --libs`
 
-# all targets in project TODO: add new targets here (and add objects and link target)
+# all targets in project TODO: add new targets here (and add objects and link target) WICHTIG
 TARGETS = mount.myfs mkfs.myfs
 
 # object files for target mkfs.myfs TODO: add new object files here
