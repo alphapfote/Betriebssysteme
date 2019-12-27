@@ -1,0 +1,31 @@
+Befehl:
+make 
+ausführen, um zu kompilieren
+anschließend 
+Befehl:
+mount mount.myfs mount_point -l logdatei
+mount ...
+ausführen, um das neuerstellte filesystem einzubinden
+
+
+//Unless otherwise specified, all functions return an integer 0 or a positive number for success, 
+//or a negative value selected from errno.h if there is an error.
+
+/*
+ * reads metadata of a file or directory and fills statbuf
+// * struct stat {
+//    dev_t     st_dev;     ID of device containing file */
+//ino_t     st_ino;     inode number */
+//mode_t    st_mode;    protection */
+//nlink_t   st_nlink;   number of hard links */
+//uid_t     st_uid;     user ID of owner */
+//gid_t     st_gid;     group ID of owner */
+//dev_t     st_rdev;    device ID (if special file) */
+//off_t     st_size;    total size, in bytes */
+//blksize_t st_blksize; blocksize for file system I/O */
+//blkcnt_t  st_blocks;  number of 512B blocks allocated */
+//time_t    st_atime;   time of last access */
+//time_t    st_mtime;   time of last modification */
+//time_t    st_ctime;   time of last status change */
+//};
+// */
