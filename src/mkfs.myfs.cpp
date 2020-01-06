@@ -19,8 +19,8 @@
 using namespace std;
 
 #define NAME_LENGTH 255 			// Maximale Länge eines Dateinamens in Zeichen
-#define BLOCK_SIZE 512 				// Logische Blockgröße (Bytes)
-#define NUM_INODES 64 				// Anzahl Inodes (Bytes)
+#define BLOCK_SIZE 512 				// Logische Blockgröße
+#define NUM_INODES 64 				// Anzahl Inodes
 #define NUM_MAX_FILES NUM_INODES 	// Maximale Anzahl Dateien
 #define AMOUNT_BLOCKS 64000			// Anzahl der Blöcke
 #define FIRST_DATABLOCK	568			// Erster Block mit Dateiinhalt
@@ -69,7 +69,7 @@ unsigned short inodeID[64]; // ID's der Inodes
 void writeInodeData(BlockDevice* bd, char* file, struct stat metadata) {
 
 	struct Inode inodeName;
-	inodeName.filename = file; //basename(file) hier schmeisst make einen error: use of undeclared identifier 'basename'
+	inodeName.filename = file; //war basename(file), da war "basename" nicht definiert
 	inodeName.filesize = metadata.st_size;
 	inodeName.uid_t = metadata.st_uid;
 	inodeName.gid_t = metadata.st_gid;
@@ -119,6 +119,7 @@ void readAndWriteFile(BlockDevice* device, char* file) {
 	}
     ++filesWritten;
 }
+
 
 
 
