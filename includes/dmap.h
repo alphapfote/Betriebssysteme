@@ -3,12 +3,10 @@
 
 class Dmap {
 
+public:
     Dmap();
 
     ~Dmap();
-
-
-public:
 
     int writeDataInDMap(int blocksNeeded);
 

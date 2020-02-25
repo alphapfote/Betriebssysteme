@@ -7,10 +7,10 @@
 #include "inodes.h"
 
 
-int inode::inodeFlush(int index) {
-    //TODO
-}
-
-int inode::inodeRead(int index) {
-    //TODO
+//int inode::inodeFlush(int index) {
+//    //TODO
+//}
+//
+//int inode::inodeRead(int index) {
+//    //TODO
 }

@@ -7,6 +7,15 @@
 
 Root root::rootDir = new Root[NUM_DIR_ENTRIES]; //Liste aller Verweise auf Inodes identifizierbar mit ID (Platzierung)
 
+//TODO: Kann glaub ich weg
+root:Root() {
+
+};
+
+root:~Root() {
+
+};
+
 
 //Root ist eine Liste aller Inodes, die Funktion checkt jede Inode des Arrays und gibt die erste ohne Inhalt zurück
 int root::getFreeRootEntry() {

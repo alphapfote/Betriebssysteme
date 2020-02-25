@@ -2,11 +2,11 @@
 #define fat_h
 
 class Fat {
+public:
 
 Fat();
 ~Fat();
 
-public:
 
 //FAT
 int getFirstFreeFat();

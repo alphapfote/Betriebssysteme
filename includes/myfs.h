@@ -19,7 +19,7 @@ using namespace std;
 
 #include "myfs-structs.h"
 #include "root.h"
-#include "inodes.h"
+#include "inode.h"
 #include "fat.h"
 #include "dmap.h"
 
@@ -30,6 +30,8 @@ using namespace std;
 
 class MyFS {
 private:
+
+public:
     static MyFS *_instance;
     FILE *logFile;
 
@@ -42,7 +44,6 @@ private:
 
     //Ende unser Zeug
 
-public:
     static MyFS *Instance();
 
     MyFS();

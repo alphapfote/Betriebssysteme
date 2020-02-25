@@ -31,7 +31,11 @@ MKFS_MYFS_OBJS = $(OBJDIR)/blockdevice.o \
 MOUNT_MYFS_OBJS = $(OBJDIR)/blockdevice.o \
 	$(OBJDIR)/myfs.o \
 	$(OBJDIR)/wrap.o \
-	$(OBJDIR)/mount.myfs.o
+	$(OBJDIR)/mount.myfs.o \
+	$(OBJDIR)/fat.o \
+	$(OBJDIR)/root.o \
+	$(OBJDIR)/dmap.o \
+	$(OBJDIR)/inode.o
 
 # build all targets
 all: $(TARGETS)

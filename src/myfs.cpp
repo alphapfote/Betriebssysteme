@@ -275,7 +275,7 @@ MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off
             }
         }
     } else {
-        LOG("Readdir: Angefragter Pfad ist nicht zulässig. Es gibt nur ein Verzeichnis.")
+        LOG("Readdir: Angefragter Pfad ist nicht zulässig. Es gibt nur ein Verzeichnis.");
         RETURN(-ENOTDIR);
     }
     //Ende unser Zeug
@@ -308,14 +308,36 @@ int MyFS::fuseInit(struct fuse_conn_info *conn) {
         LOG("Starting logging...\n");
         LOGM();
 
+
+
+
         // you can get the containfer file name here:
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
         // TODO: Enter your code here!
 
 
-        //Unser Zeug
+        //Neues Zeug
 
+        BlockDevice *device = new BlockDevice(512); //ein (simulierter)Datenträger wird initialisiert
+        device->open(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
+        //ret = this->blockDevice.create(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
+
+//Ende Neues Zeug
+
+
+
+
+
+
+
+
+
+
+
+
+        //Unser Zeug
+/*
 
         // Get in-memory flag
         this->inMemoryFs = (((MyFsInfo *) fuse_get_context()->private_data)->inMemoryFs == 1);
@@ -365,7 +387,7 @@ int MyFS::fuseInit(struct fuse_conn_info *conn) {
 
                     char *SBlock_buffer = new char[128 * BLOCK_SIZE]();
 
-                    std::memcpy(SBlock_buffer, BLOCK_SIZE, sizeof(BLOCK_SIZE));
+                    //std::memcpy(SBlock_buffer, BLOCK_SIZE, sizeof(BLOCK_SIZE));
 
                     //char *dMap_buffer = new char[1 * BLOCK_SIZE]();
                     //char *inode_buffer = new char[64 * BLOCK_SIZE]();
@@ -402,26 +424,28 @@ int MyFS::fuseInit(struct fuse_conn_info *conn) {
 
     }
 
-    MyFS *file_system = MyFS::Instance();
 
+
+    MyFS *file_system = MyFS::Instance();
+    */
 //Ende unser Zeug
 
-    return 0;
-}
+        return 0;
+    }
 
-int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
-    LOGM();
-    return 0;
-}
+    int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
+        LOGM();
+        return 0;
+    }
 
-int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
-    LOGM();
-    return 0;
-}
+    int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
+        LOGM();
+        return 0;
+    }
 
-void MyFS::fuseDestroy() {
-    LOGM();
-}
+    void MyFS::fuseDestroy() {
+        LOGM();
+    }
 
 // TODO: Add your own additional methods here!
 
@@ -431,22 +455,22 @@ void MyFS::fuseDestroy() {
  * TODO: Block dynamisch anpassen
  * TODO: Ist unbenutzt
  */
-template<typename T>
-int writeOnBlockDevice(BlockDevice *device, u_int32_t block, const T *data) {
-    char buffer[BLOCK_SIZE]; //Puffer in dem die Daten zwischengespeichert werden
+    template<typename T>
+    int writeOnBlockDevice(BlockDevice *device, u_int32_t block, const T *data) {
+        char buffer[BLOCK_SIZE]; //Puffer in dem die Daten zwischengespeichert werden
 
-    memset(buffer, 0,
-           BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist und keine Fehler beim Schreiben auftreten
-
-    int blocksNecessary = (sizeof(T) / BLOCK_SIZE) + 1;
-
-    for (int i = 0; i < blocksNecessary; ++i) {
-        memcpy(buffer, data + BLOCK_SIZE * i, BLOCK_SIZE); //Kopiert 512 Byte in den Puffer
         memset(buffer, 0,
                BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist und keine Fehler beim Schreiben auftreten
-    }
-    //TODO?
-    device->write(block, buffer);
 
-    return ALL_OK;
-}
+        int blocksNecessary = (sizeof(T) / BLOCK_SIZE) + 1;
+
+        for (int i = 0; i < blocksNecessary; ++i) {
+            memcpy(buffer, data + BLOCK_SIZE * i, BLOCK_SIZE); //Kopiert 512 Byte in den Puffer
+            memset(buffer, 0,
+                   BLOCK_SIZE); // Die 512 Byte des Puffers werden mit 0en belegt, damit er ausgefüllt ist und keine Fehler beim Schreiben auftreten
+        }
+        //TODO?
+        device->write(block, buffer);
+
+        return ALL_OK;
+    }
