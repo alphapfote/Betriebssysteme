@@ -10,20 +10,44 @@
 #define myfs_h
 
 #include <fuse.h>
-
 #include "blockdevice.h"
+
+//Unser Zeug
+#include <string>
+#include <cmath>
+using namespace std;
+
+#include "myfs-structs.h"
+#include "root.h"
+#include "inodes.h"
+#include "fat.h"
+#include "dmap.h"
+
+//Ende unser Zeug
+
+
+
 
 class MyFS {
 private:
     static MyFS *_instance;
     FILE *logFile;
-    
+
+    //Unser Zeug
+    BlockDevice blockDevice;
+    Dmap dmap;
+    Root root;
+    Fat fat;
+    Inode inode;
+
+    //Ende unser Zeug
+
 public:
     static MyFS *Instance();
-    
+
     MyFS();
     ~MyFS();
-    
+
     // --- Methods called by FUSE ---
     int fuseGetattr(const char *path, struct stat *statbuf);
     int fuseReadlink(const char *path, char *link, size_t size);
@@ -56,7 +80,13 @@ public:
     int fuseInit(struct fuse_conn_info *conn);
     int fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo);
     int fuseCreate(const char *, mode_t, struct fuse_file_info *);
-    void fuseDestroy();    
+    void fuseDestroy();
+
+
+    //Unser Zeug
+    char* getFileNameFromPath(const char* path);
+
+    //Ende unser Zeug
 };
 
 #endif /* myfs_h */
